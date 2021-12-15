@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using TinyVersionUpdater;
 using TinyVersionUpdaterConsole.Commands;
@@ -13,7 +15,7 @@ namespace TinyVersionUpdaterConsole
       new Checker(),
       new Worker()
     };
-    
+
     private static void Main(string[] args)
     {
       if (args.Length == 0)
@@ -30,7 +32,7 @@ namespace TinyVersionUpdaterConsole
         Write(Result.Fail);
         return;
       }
-      
+
       var commandArgs = args
         .Skip(1)
         .ToArray();
@@ -45,10 +47,15 @@ namespace TinyVersionUpdaterConsole
           hasResponse = true;
         });
 
-      while (!hasResponse){}
+      while (!hasResponse)
+      {
+      }
+
+      if (commandName == new Worker().Name())
+        Process.Start(Updater.Config.ExecutablePath);
     }
 
-    private static void Write(Result text) 
+    private static void Write(Result text)
       => Console.WriteLine(text.ToString().ToUpper());
   }
 }

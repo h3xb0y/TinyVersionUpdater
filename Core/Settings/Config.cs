@@ -10,7 +10,5 @@ namespace TinyVersionUpdater.Settings
     public string RootDirectory { get; set; }
 
     public FtpConfig FtpConfig { get; set; }
-
-    public string WorkingDirectory = "_TinyVersionUpdaterCache";
   }
 }

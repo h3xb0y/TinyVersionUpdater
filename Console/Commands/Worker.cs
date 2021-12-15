@@ -13,6 +13,8 @@ namespace TinyVersionUpdaterConsole.Commands
     {
       var result = new Subject<Result>();
       
+      Console.WriteLine("Checking is need load new version...");
+      
       new Updater()
         .IsNeedUpdate()
         .Subscribe(isNeedUpdate =>
@@ -22,6 +24,8 @@ namespace TinyVersionUpdaterConsole.Commands
             result.OnNext(Result.Fail);
             return;
           }
+          
+          Console.WriteLine("Loading new version...");
 
           new Updater()
             .LoadLastVersion()

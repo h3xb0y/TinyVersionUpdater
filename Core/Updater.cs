@@ -14,10 +14,24 @@ namespace TinyVersionUpdater
 {
   public class Updater
   {
-    private Config _config;
+    private static Config _config;
+    public static Config Config => _config;
 
     public Updater()
-      => Initialize();
+    {
+      Config config = null;
+      
+      try
+      {
+        config = JsonSerializer.Deserialize<Config>(File.ReadAllText("updater.config"));
+      }
+      catch(Exception e)
+      {
+        Console.Write(e);
+      }
+
+      _config = config;
+    }
 
     public Subject<bool> IsNeedUpdate()
     {
@@ -77,63 +91,80 @@ namespace TinyVersionUpdater
 
         void ParseResponse(WebResponse response)
         {
-          // PARSING RESPONSE
-          using var stream = response.GetResponseStream();
-          using var streamReader = new StreamReader(stream ?? throw new Exception());
-          var buffer = new byte[2048];
-          var fs = new FileStream(version + ".zip", FileMode.Create);
-          var readCount = stream.Read(buffer, 0, buffer.Length);
-          while (readCount > 0)
-          {
-            fs.Write(buffer, 0, readCount);
-            readCount = stream.Read(buffer, 0, buffer.Length);
-          }
-          fs.Close();
-          stream.Close();
-          
-          // EXTRACTING ZIP
-          
-          ZipFile.ExtractToDirectory(version + ".zip", version.ToString());
-          
-          // REPLACING FILES
+          ParseResponseAndCreateZip(response, version.ToString());
 
-          var sourcePath = version.ToString();
-          var targetPath = _config.RootDirectory;
-          
-          foreach (var dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
-            Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+          ParseAndCreateZip(version.ToString());
 
-          foreach (var newPath in Directory.GetFiles(sourcePath, "*.*",SearchOption.AllDirectories))
-            File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+          KillAllProcesses(new DirectoryInfo(_config.ExecutablePath).Name.Replace(".exe", ""));
           
-          // DELETE TEMPORARY FILES
+          ReplaceAllFiles(version.ToString());
           
-          File.Delete(version + ".zip");
-          Directory.Delete(version.ToString(), true);
-          
-          // CALLS RESULT
           result.OnNext(Result.Ok);
         }
       }
     }
-    
-    private void Initialize()
+
+    private void ParseAndCreateZip(string version)
     {
-      if (_config != null)
-        return;
-      
-      Config config = null;
-      
-      try
+      Console.WriteLine("Extracting files...");
+          
+      if(Directory.Exists(version))
+        Directory.Delete(version, true);
+          
+      ZipFile.ExtractToDirectory(version + ".zip", version);
+    }
+
+    private void KillAllProcesses(string name)
+    {
+      foreach (var process in Process.GetProcessesByName(name))
+        process.Kill();
+    }
+
+    private void ReplaceAllFiles(string version)
+    {
+      Console.WriteLine("Copying files...");
+
+      var currentPath = Directory.GetCurrentDirectory();
+      var sourcePath = currentPath + "\\" + version.ToString();
+      var targetPath = currentPath + "\\" + _config.RootDirectory;
+      var skipDirectory = currentPath + "\\updater";
+          
+      foreach (var dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
       {
-        config = JsonSerializer.Deserialize<Config>(File.ReadAllText("updater.config"));
-      }
-      catch(Exception e)
-      {
-        Console.Write(e);
+        if(dirPath.Contains(skipDirectory))
+          continue;
+            
+        Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
       }
 
-      _config = config;
+      foreach (var newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+      {
+        if(newPath.Contains(skipDirectory))
+          continue;
+            
+        File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+      }
+          
+      Console.WriteLine("Removing temp files...");
+          
+      File.Delete(version + ".zip");
+      Directory.Delete(version.ToString(), true);
+    }
+
+    private void ParseResponseAndCreateZip(WebResponse response, string version)
+    {
+      using var stream = response.GetResponseStream();
+      using var streamReader = new StreamReader(stream ?? throw new Exception());
+      var buffer = new byte[2048];
+      var fs = new FileStream(version + ".zip", FileMode.Create);
+      var readCount = stream.Read(buffer, 0, buffer.Length);
+      while (readCount > 0)
+      {
+        fs.Write(buffer, 0, readCount);
+        readCount = stream.Read(buffer, 0, buffer.Length);
+      }
+      fs.Close();
+      stream.Close();
     }
   }
 }
