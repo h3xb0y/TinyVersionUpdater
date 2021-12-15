@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Reflection;
-using System.Text;
+using System.Reactive.Subjects;
 using TinyVersionUpdater;
 
 namespace TinyVersionUpdaterConsole.Commands.CheckerInnerCommands
@@ -10,23 +9,25 @@ namespace TinyVersionUpdaterConsole.Commands.CheckerInnerCommands
     public string Name()
       => "has_update";
 
-    public Result Execute(string[] args)
+    public IObservable<Result> Execute(string[] args)
     {
-      if (args.Length == 0)
-        return Result.Fail;
+      var result = new Subject<Result>();
 
-      try
-      {
-        var version = new Version(args[0]);
-        var lastVersion = new Version(new Updater().LastVersion());
+      new Updater()
+        .LastVersion()
+        .Subscribe(lastVersion =>
+        {
+          if (args.Length == 0)
+          {
+            result.OnNext(Result.Fail);
+            return;
+          }
+          
+          var version = new Version(args[0]);
+          result.OnNext(lastVersion.CompareTo(version) == 1 ? Result.Ok : Result.Fail);
+        });
 
-
-        return version.CompareTo(lastVersion) == 1 ? Result.Ok : Result.Fail;
-      }
-      catch (Exception e)
-      {
-        return Result.Fail;
-      }
+      return result;
     }
   }
 }

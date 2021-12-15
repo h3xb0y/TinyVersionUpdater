@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TinyVersionUpdater;
 using TinyVersionUpdaterConsole.Commands;
 
 namespace TinyVersionUpdaterConsole
 {
-  internal class Program
+  internal static class Program
   {
     private static readonly List<ICommand> Commands = new()
     {
@@ -29,9 +30,28 @@ namespace TinyVersionUpdaterConsole
         return;
       }
       
-      var commandArgs = args.Skip(1).ToArray();
+      var commandArgs = args
+        .Skip(1)
+        .ToArray();
 
-      Write(command.Execute(commandArgs));
+      var hasResponse = false;
+
+      /*command
+        .Execute(commandArgs)
+        .Subscribe(result =>
+        {
+          Write(result);
+          hasResponse = true;
+        });*/
+
+      new Updater().LoadLastVersion()
+        .Subscribe(result =>
+        {
+          Write(result);
+          hasResponse = true;
+        });
+
+      while (!hasResponse){}
     }
 
     private static void Write(Result text) 

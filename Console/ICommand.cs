@@ -1,9 +1,12 @@
-﻿namespace TinyVersionUpdaterConsole
+﻿using System;
+using System.Reactive.Subjects;
+
+namespace TinyVersionUpdaterConsole
 {
   public interface ICommand
   {
     string Name();
     
-    Result Execute(string[] args);
+    IObservable<Result> Execute(string[] args);
   }
 }

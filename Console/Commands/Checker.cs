@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using TinyVersionUpdaterConsole.Commands.CheckerInnerCommands;
 
 namespace TinyVersionUpdaterConsole.Commands
@@ -14,16 +16,19 @@ namespace TinyVersionUpdaterConsole.Commands
     public string Name()
       => "check";
 
-    public Result Execute(string[] args)
+    public IObservable<Result> Execute(string[] args)
     {
-      if (args.Length == 0)
-        return Result.Fail;
+      var subject = new Subject<Result>();
       
       var name = args[0];
-      var command = _checkers.FirstOrDefault(x => x.Name().Equals(name));
+      var command = _checkers.First(x => x.Name().Equals(name));
       var commandArgs = args.Skip(1).ToArray();
 
-      return command?.Execute(commandArgs) ?? Result.Fail;
+      command?
+        .Execute(commandArgs)
+        .Subscribe(result => subject.OnNext(result), error => subject.OnNext(Result.Fail));
+
+      return subject;
     }
   }
 }
