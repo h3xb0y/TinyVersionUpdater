@@ -10,7 +10,8 @@ namespace TinyVersionUpdaterConsole
   {
     private static readonly List<ICommand> Commands = new()
     {
-      new Checker()
+      new Checker(),
+      new Worker()
     };
     
     private static void Main(string[] args)
@@ -36,15 +37,8 @@ namespace TinyVersionUpdaterConsole
 
       var hasResponse = false;
 
-      /*command
+      command
         .Execute(commandArgs)
-        .Subscribe(result =>
-        {
-          Write(result);
-          hasResponse = true;
-        });*/
-
-      new Updater().LoadLastVersion()
         .Subscribe(result =>
         {
           Write(result);

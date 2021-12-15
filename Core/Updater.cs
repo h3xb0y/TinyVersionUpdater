@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -17,6 +18,21 @@ namespace TinyVersionUpdater
 
     public Updater()
       => Initialize();
+
+    public Subject<bool> IsNeedUpdate()
+    {
+      var result = new Subject<bool>();
+      var versionInfo = FileVersionInfo.GetVersionInfo(_config.ExecutablePath);
+      var version = new Version(versionInfo.FileVersion);
+
+      LastVersion()
+        .Subscribe(lastVersion =>
+        {
+          result.OnNext(lastVersion.CompareTo(version) == 1);
+        });
+
+      return result;
+    }
     
     public Subject<Version> LastVersion()
     {
@@ -77,7 +93,23 @@ namespace TinyVersionUpdater
           
           // EXTRACTING ZIP
           
-          ZipFile.ExtractToDirectory(version + ".zip", version + "_temp");
+          ZipFile.ExtractToDirectory(version + ".zip", version.ToString());
+          
+          // REPLACING FILES
+
+          var sourcePath = version.ToString();
+          var targetPath = _config.RootDirectory;
+          
+          foreach (var dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+            Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+
+          foreach (var newPath in Directory.GetFiles(sourcePath, "*.*",SearchOption.AllDirectories))
+            File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+          
+          // DELETE TEMPORARY FILES
+          
+          File.Delete(version + ".zip");
+          Directory.Delete(version.ToString(), true);
           
           // CALLS RESULT
           result.OnNext(Result.Ok);
