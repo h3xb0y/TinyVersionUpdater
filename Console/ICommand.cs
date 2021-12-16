@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reactive.Subjects;
+using TinyVersionUpdater;
 
 namespace TinyVersionUpdaterConsole
 {

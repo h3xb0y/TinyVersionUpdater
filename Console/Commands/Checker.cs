@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using TinyVersionUpdater;
 using TinyVersionUpdaterConsole.Commands.CheckerInnerCommands;
 
 namespace TinyVersionUpdaterConsole.Commands
@@ -24,9 +25,9 @@ namespace TinyVersionUpdaterConsole.Commands
       var command = _checkers.First(x => x.Name().Equals(name));
       var commandArgs = args.Skip(1).ToArray();
 
-      command?
+      command
         .Execute(commandArgs)
-        .Subscribe(result => subject.OnNext(result), error => subject.OnNext(Result.Fail));
+        .Subscribe(result => subject.OnNext(result), _ => subject.OnNext(Result.Fail));
 
       return subject;
     }

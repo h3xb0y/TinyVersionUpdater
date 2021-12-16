@@ -8,7 +8,6 @@ using System.Reactive.Subjects;
 using TinyVersionUpdater.Settings;
 using System.Text.Json;
 using TinyVersionUpdater.FtpWorkflow;
-using TinyVersionUpdaterConsole;
 
 namespace TinyVersionUpdater
 {
@@ -37,7 +36,7 @@ namespace TinyVersionUpdater
     {
       var result = new Subject<bool>();
       var versionInfo = FileVersionInfo.GetVersionInfo(_config.ExecutablePath);
-      var version = new Version(versionInfo.FileVersion);
+      var version = new Version(versionInfo.FileVersion ?? "0.0.0.0");
 
       LastVersion()
         .Subscribe(lastVersion =>
@@ -70,7 +69,7 @@ namespace TinyVersionUpdater
             .First();
 
           version.OnNext(lastVersion);
-        }, error => Console.WriteLine(error));
+        }, _ => version.OnNext(new Version(0,0,0,0)));
 
       return version;
     }
@@ -86,8 +85,8 @@ namespace TinyVersionUpdater
       void Load(Version version)
       {
         new FtpService(_config?.FtpConfig)
-          .Download(_config?.FtpConfig?.Path + version.ToString() + ".zip")
-          .Subscribe(ParseResponse, error => Console.WriteLine(error));
+          .Download(_config?.FtpConfig?.Path + version + ".zip")
+          .Subscribe(ParseResponse, _ => result.OnNext(Result.Fail));
 
         void ParseResponse(WebResponse response)
         {
@@ -125,7 +124,7 @@ namespace TinyVersionUpdater
       Console.WriteLine("Copying files...");
 
       var currentPath = Directory.GetCurrentDirectory();
-      var sourcePath = currentPath + "\\" + version.ToString();
+      var sourcePath = currentPath + "\\" + version;
       var targetPath = currentPath + "\\" + _config.RootDirectory;
       var skipDirectory = currentPath + "\\updater";
           

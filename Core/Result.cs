@@ -1,4 +1,4 @@
-﻿namespace TinyVersionUpdaterConsole
+﻿namespace TinyVersionUpdater
 {
   public enum Result
   {

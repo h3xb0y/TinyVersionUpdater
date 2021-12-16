@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using TinyVersionUpdater;
 using TinyVersionUpdaterConsole.Commands;
@@ -52,7 +51,18 @@ namespace TinyVersionUpdaterConsole
       }
 
       if (commandName == new Worker().Name())
-        Process.Start(Updater.Config.ExecutablePath);
+      {
+        var process = new Process 
+        {
+          StartInfo = new ProcessStartInfo
+          {
+            FileName = Updater.Config.ExecutablePath,
+            Arguments = "release_notes"
+          }
+        };
+      
+        process.Start();
+      }
     }
 
     private static void Write(Result text)
