@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive.Subjects;
 using TinyVersionUpdater;
 
@@ -33,6 +34,20 @@ namespace TinyVersionUpdaterConsole.Commands
         });
 
       return result;
+    }
+
+    public void PostExecute()
+    {
+      var process = new Process 
+      {
+        StartInfo = new ProcessStartInfo
+        {
+          FileName = Updater.Config.ExecutablePath,
+          Arguments = "release_notes"
+        }
+      };
+
+      process.Start();
     }
   }
 }

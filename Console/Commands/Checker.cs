@@ -31,5 +31,9 @@ namespace TinyVersionUpdaterConsole.Commands
 
       return subject;
     }
+
+    public void PostExecute()
+    {
+    }
   }
 }

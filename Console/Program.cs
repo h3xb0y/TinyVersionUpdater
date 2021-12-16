@@ -49,20 +49,8 @@ namespace TinyVersionUpdaterConsole
       while (!hasResponse)
       {
       }
-
-      if (commandName == new Worker().Name())
-      {
-        var process = new Process 
-        {
-          StartInfo = new ProcessStartInfo
-          {
-            FileName = Updater.Config.ExecutablePath,
-            Arguments = "release_notes"
-          }
-        };
       
-        process.Start();
-      }
+      command.PostExecute();
     }
 
     private static void Write(Result text)

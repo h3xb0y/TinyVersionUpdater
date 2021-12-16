@@ -8,5 +8,7 @@ namespace TinyVersionUpdaterConsole
     string Name();
     
     IObservable<Result> Execute(string[] args);
+
+    void PostExecute();
   }
 }

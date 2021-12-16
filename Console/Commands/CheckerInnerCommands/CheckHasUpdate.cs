@@ -29,5 +29,9 @@ namespace TinyVersionUpdaterConsole.Commands.CheckerInnerCommands
 
       return result;
     }
+
+    public void PostExecute()
+    {
+    }
   }
 }
