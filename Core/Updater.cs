@@ -7,6 +7,8 @@ using System.Net;
 using System.Reactive.Subjects;
 using TinyVersionUpdater.Settings;
 using System.Text.Json;
+using System.Threading;
+using System.Timers;
 using TinyVersionUpdater.FtpWorkflow;
 
 namespace TinyVersionUpdater
@@ -117,6 +119,8 @@ namespace TinyVersionUpdater
     {
       foreach (var process in Process.GetProcessesByName(name))
         process.Kill();
+      
+      Thread.Sleep(1000 * 5); // Waiting for subprocessorc shutdown
     }
 
     private void ReplaceAllFiles(string version)

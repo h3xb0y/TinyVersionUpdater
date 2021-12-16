@@ -11,8 +11,7 @@ namespace TinyVersionUpdaterConsole
   {
     private static readonly List<ICommand> Commands = new()
     {
-      new Checker(),
-      new Worker()
+      new Checker(), new Worker()
     };
 
     private static void Main(string[] args)
