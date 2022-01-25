@@ -1,0 +1,40 @@
+﻿<controls:BiaWindow x:Class="WPF.MainWindow"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:controls="clr-namespace:Biaui.Controls;assembly=Biaui"
+                    xmlns:local="clr-namespace:WPF"
+                    xmlns:viewModel="clr-namespace:WPF.ViewModel"
+                    xmlns:converters="clr-namespace:WPF.ViewModel.Converters"
+                    Style="{StaticResource BiaWindowSpaceSavingStyle}"
+                    mc:Ignorable="d" Initialized="MainWindow_OnInitialized"
+                    Title="Tiny Version Updater" Height="250" Width="400" ResizeMode="CanMinimize">
+    
+    <Grid>
+        
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+            <converters:AppStateToVisibilityConverter x:Key="CanCheckStateToVisibility" RequiredState="CanCheck"/>
+            <converters:AppStateToVisibilityConverter x:Key="CheckingStateToVisibility" RequiredState="Checking"/>
+            <converters:AppStateToVisibilityConverter x:Key="VersionFoundToVisibility" RequiredState="VersionFound"/>
+            <converters:AppStateToVisibilityConverter x:Key="VersionIsActualToVisibility" RequiredState="VersionIsActual"/>
+            <converters:AppStateToTextConverter x:Key="StateToTextConverter"/>
+        </Grid.Resources>
+
+        <StackPanel Margin="0,0,0,0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Orientation="Vertical">
+            
+            <controls:BiaTextBlock Text="{Binding CurrentState, Converter={StaticResource StateToTextConverter}}" HorizontalAlignment="Center"/>
+            
+            <controls:BiaButton Content="Check" Visibility="{Binding CurrentState, Converter={StaticResource CanCheckStateToVisibility}}"
+                                Click="CheckVersion_OnClick"/>
+            
+            <controls:BiaProgressPanel Name="ProgressPanel" Visibility="{Binding CurrentState, Converter={StaticResource CheckingStateToVisibility}}"/>
+            
+        </StackPanel>
+        
+    </Grid>
+</controls:BiaWindow>
