@@ -2,7 +2,7 @@
 
 A small WPF client for auto-updating applications. The system includes the following functions:
 1. Checking for new versions based on the current version of the executable file.
-2. Download files from FTP and replace files. 
+2. Downloading and replacing files from FTP. 
 
 ## Usage
 
