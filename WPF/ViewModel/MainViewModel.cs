@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using TinyVersionUpdaterConsole;
-using TinyVersionUpdaterConsole.Commands;
+using TinyVersionUpdater;
 using WPF.Annotations;
 
 namespace WPF.ViewModel
@@ -11,11 +9,6 @@ namespace WPF.ViewModel
   public sealed class MainViewModel : INotifyPropertyChanged
   {
     public event PropertyChangedEventHandler PropertyChanged;
-    
-    private static readonly List<ICommand> Commands = new()
-    {
-      new Checker(), new Worker()
-    };
     
     private AppState _currentState;
 
@@ -32,39 +25,30 @@ namespace WPF.ViewModel
       }
     }
 
-    public MainViewModel()
-      => Initialize();
-
     public void CheckNewVersion()
     {
       CurrentState = AppState.Checking;
+      
+      new Updater()
+        .IsNeedUpdate()
+        .Subscribe(isNeedUpdate =>
+        {
+          CurrentState = isNeedUpdate ? AppState.VersionFound : AppState.VersionIsActual;
+        });
     }
 
-    private void Initialize()
+    public void DownloadNewVersion()
     {
-      var args = Global.AppArgs;
+      CurrentState = AppState.NewVersionDownloading;
       
-      if (args == null || args.Length == 0)
-      {
-        CurrentState = AppState.CanCheck;
-        return;
-      }
-      
-
-      var commandName = args[0];
-
-      var command = Commands.FirstOrDefault(x => x.Name().Equals(commandName));
-      if (command == null)
-      {
-        CurrentState = AppState.CanCheck;
-        return;
-      }
-      
-      var commandArgs = args
-        .Skip(1)
-        .ToArray();
-
-      command.Execute(commandArgs);
+      new Updater()
+        .LoadLastVersion()
+        .Subscribe(result =>
+        {
+          CurrentState = result == Result.Ok 
+            ? AppState.VersionUpgradedSuccessful 
+            : AppState.VersionUpgradingFailed;
+        });
     }
     
     [NotifyPropertyChangedInvocator]

@@ -17,8 +17,11 @@
             <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
             <converters:AppStateToVisibilityConverter x:Key="CanCheckStateToVisibility" RequiredState="CanCheck"/>
             <converters:AppStateToVisibilityConverter x:Key="CheckingStateToVisibility" RequiredState="Checking"/>
+            <converters:AppStateToVisibilityConverter x:Key="DownloadingStateToVisibility" RequiredState="NewVersionDownloading"/>
             <converters:AppStateToVisibilityConverter x:Key="VersionFoundToVisibility" RequiredState="VersionFound"/>
             <converters:AppStateToVisibilityConverter x:Key="VersionIsActualToVisibility" RequiredState="VersionIsActual"/>
+            <converters:AppStateToVisibilityConverter x:Key="VersionIsUpgradedToVisibility" RequiredState="VersionUpgradedSuccessful"/>
+            <converters:AppStateToVisibilityConverter x:Key="VersionIsFailedToVisibility" RequiredState="VersionUpgradingFailed"/>
             <converters:AppStateToTextConverter x:Key="StateToTextConverter"/>
         </Grid.Resources>
 
@@ -32,7 +35,21 @@
             <controls:BiaButton Content="Check" Visibility="{Binding CurrentState, Converter={StaticResource CanCheckStateToVisibility}}"
                                 Click="CheckVersion_OnClick"/>
             
-            <controls:BiaProgressPanel Name="ProgressPanel" Visibility="{Binding CurrentState, Converter={StaticResource CheckingStateToVisibility}}"/>
+            <controls:BiaButton Content="Download" Visibility="{Binding CurrentState, Converter={StaticResource VersionFoundToVisibility}}"
+                                Click="DownloadNewVersion_OnClick"/>
+            
+            <Image Source="http://getdrawings.com/free-icon/check-all-icon-60.png" Width="60" Height="60" 
+                   Visibility="{Binding CurrentState, Converter={StaticResource VersionIsActualToVisibility}}"/>
+            
+            <Image Source="http://getdrawings.com/free-icon/check-all-icon-60.png" Width="60" Height="60" 
+                   Visibility="{Binding CurrentState, Converter={StaticResource VersionIsUpgradedToVisibility}}"/>
+            
+            <Image Source="http://www.clipartbest.com/cliparts/yik/Lzj/yikLzj7yT.png" Width="60" Height="60" 
+                   Visibility="{Binding CurrentState, Converter={StaticResource VersionIsFailedToVisibility}}"/>
+            
+            <controls:BiaProgressPanel Name="CheckingProgressPanel" Visibility="{Binding CurrentState, Converter={StaticResource CheckingStateToVisibility}}"/>
+            
+            <controls:BiaProgressPanel Name="LoadingProgressPanel" Visibility="{Binding CurrentState, Converter={StaticResource DownloadingStateToVisibility}}"/>
             
         </StackPanel>
         

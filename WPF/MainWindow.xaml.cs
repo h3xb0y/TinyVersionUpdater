@@ -17,5 +17,11 @@ namespace WPF
       if (sender is FrameworkElement element) 
         ((MainViewModel) element.DataContext).CheckNewVersion();
     }
+
+    private void DownloadNewVersion_OnClick(object sender, RoutedEventArgs e)
+    {
+      if (sender is FrameworkElement element) 
+        ((MainViewModel) element.DataContext).DownloadNewVersion();
+    }
   }
 }

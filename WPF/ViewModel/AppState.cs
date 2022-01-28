@@ -5,6 +5,9 @@
     CanCheck,
     Checking,
     VersionFound,
-    VersionIsActual
+    VersionIsActual,
+    NewVersionDownloading,
+    VersionUpgradingFailed,
+    VersionUpgradedSuccessful
   }
 }
