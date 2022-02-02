@@ -99,6 +99,8 @@ namespace TinyVersionUpdater
           KillAllProcesses(new DirectoryInfo(_config.ExecutablePath).Name.Replace(".exe", ""));
           
           ReplaceAllFiles(version.ToString());
+
+          CallAfterUpdateIfNeeded();
           
           result.OnNext(Result.Ok);
         }
@@ -152,6 +154,30 @@ namespace TinyVersionUpdater
           
       File.Delete(version + ".zip");
       Directory.Delete(version.ToString(), true);
+    }
+
+    private void CallAfterUpdateIfNeeded()
+    {
+      if (string.IsNullOrEmpty(_config.AfterUpdateArgs))
+        return;
+
+      var process = new Process()
+      {
+        StartInfo = new ProcessStartInfo
+        {
+          FileName = Path.GetFullPath(_config.ExecutablePath),
+          Arguments = _config.AfterUpdateArgs
+        }
+      };
+
+      try
+      {
+        process.Start();
+      }
+      catch (Exception e)
+      {
+        // ignored
+      }
     }
 
     private void ParseResponseAndCreateZip(WebResponse response, string version)
